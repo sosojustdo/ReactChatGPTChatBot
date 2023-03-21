@@ -12,7 +12,7 @@ const systemMessage = { //  Explain things like you're talking to a software pro
 function App() {
   const [messages, setMessages] = useState([
     {
-      message: "Hello, I'm ChatGPT! Ask me anything!",
+      message: "Hello, I'm ChatGPT Bot! Ask Me Anything!",
       sentTime: "just now",
       sender: "ChatGPT"
     }
@@ -27,7 +27,7 @@ function App() {
     };
 
     const newMessages = [...messages, newMessage];
-    
+
     setMessages(newMessages);
 
     // Initial system message to determine ChatGPT functionality
@@ -54,20 +54,21 @@ function App() {
 
     // Get the request body set up with the model we plan to use
     // and the messages which we formatted above. We add a system message in the front to'
-    // determine how we want chatGPT to act. 
+    // determine how we want chatGPT to act.
     const apiRequestBody = {
-      "model": "gpt-3.5-turbo",
+      //"model": "gpt-3.5-turbo",
       "messages": [
         systemMessage,  // The system message DEFINES the logic of our chatGPT
         ...apiMessages // The messages from our chat with ChatGPT
       ]
     }
 
-    await fetch("https://api.openai.com/v1/chat/completions", 
+    //await fetch("https://api.openai.com/v1/chat/completions",
+    await fetch("https://www.sosojustdo.com/chat_completion/",
     {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + API_KEY,
+        //"Authorization": "Bearer " + API_KEY,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(apiRequestBody)
@@ -75,8 +76,13 @@ function App() {
       return data.json();
     }).then((data) => {
       console.log(data);
+      const message = data.msg
+      if(data.code == 0){
+        message = data.data
+      }
       setMessages([...chatMessages, {
-        message: data.choices[0].message.content,
+        //message: data.choices[0].message.content,
+        message: message,
         sender: "ChatGPT"
       }]);
       setIsTyping(false);
@@ -87,9 +93,9 @@ function App() {
     <div className="App">
       <div style={{ position:"relative", height: "800px", width: "700px"  }}>
         <MainContainer>
-          <ChatContainer>       
-            <MessageList 
-              scrollBehavior="smooth" 
+          <ChatContainer>
+            <MessageList
+              scrollBehavior="smooth"
               typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
             >
               {messages.map((message, i) => {
@@ -97,7 +103,7 @@ function App() {
                 return <Message key={i} model={message} />
               })}
             </MessageList>
-            <MessageInput placeholder="Type message here" onSend={handleSend} />        
+            <MessageInput placeholder="Type message here" onSend={handleSend} />
           </ChatContainer>
         </MainContainer>
       </div>
