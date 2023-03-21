@@ -76,13 +76,13 @@ function App() {
       return data.json();
     }).then((data) => {
       console.log(data);
-      const message = data.msg
-      if(data.code == 0){
-        message = data.data
+      let Message = data.msg
+      if (data.code == 0) {
+        Message = data.data
       }
       setMessages([...chatMessages, {
         //message: data.choices[0].message.content,
-        message: message,
+        message: Message,
         sender: "ChatGPT"
       }]);
       setIsTyping(false);
