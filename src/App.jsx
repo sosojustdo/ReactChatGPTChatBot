@@ -58,7 +58,7 @@ function App() {
     const apiRequestBody = {
       //"model": "gpt-3.5-turbo",
       "messages": [
-        systemMessage,  // The system message DEFINES the logic of our chatGPT
+        //systemMessage,  // The system message DEFINES the logic of our chatGPT
         ...apiMessages // The messages from our chat with ChatGPT
       ]
     }
