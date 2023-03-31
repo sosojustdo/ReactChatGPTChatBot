@@ -3,6 +3,8 @@ import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 
+import React, { useRef, useEffect } from 'react';
+
 const API_KEY = "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";
 // "Explain things like you would to a 10 year old learning how to code."
 const systemMessage = { //  Explain things like you're talking to a software professional with 5 years of experience.
@@ -12,7 +14,7 @@ const systemMessage = { //  Explain things like you're talking to a software pro
 function App() {
   const [messages, setMessages] = useState([
     {
-      message: "Hello, I'm ChatGPT Bot! Ask Me Anything!",
+      message: "Hello, I'm Nice Chat Bot, Ask Me Anything...",
       sentTime: "just now",
       sender: "ChatGPT"
     }
@@ -95,15 +97,15 @@ function App() {
         <MainContainer>
           <ChatContainer>
             <MessageList
-              scrollBehavior="smooth"
-              typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
+              loadingMorePosition="bottom"
+              typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}
             >
               {messages.map((message, i) => {
                 console.log(message)
                 return <Message key={i} model={message} />
               })}
             </MessageList>
-            <MessageInput placeholder="Type message here" onSend={handleSend} />
+            <MessageInput attachButton={false} placeholder="Type Message Here..." onSend={handleSend} />
           </ChatContainer>
         </MainContainer>
       </div>
