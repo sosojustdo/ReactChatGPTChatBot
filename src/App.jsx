@@ -3,6 +3,8 @@ import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 function App() {
   const [messages, setMessages] = useState([
     {
@@ -45,7 +47,7 @@ function App() {
       ]
     }
 
-    await fetch("https://www.sosojustdo.com/chat_completion/",
+    await fetch(apiUrl + 'chat_completion/',
     {
       method: "POST",
       headers: {

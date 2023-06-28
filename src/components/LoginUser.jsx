@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const LoginUser = () => {
     const [login_user_name, setLoginUserName] = useState('Anonymous')
     useEffect(() => {
         const fetchLoginUser = async () => {
           try {
-            const response = await fetch('https://www.sosojustdo.com/current_user/');
+            const response = await fetch(apiUrl + 'current_user/');
             const jsonData = await response.json();
             console.log('login user response:', jsonData);
             setLoginUserName(jsonData.data);
