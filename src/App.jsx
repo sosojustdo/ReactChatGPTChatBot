@@ -47,11 +47,10 @@ function App() {
       ]
     }
 
-    await fetch(apiUrl + 'chat_completion/',
+    await fetch(apiUrl + '/chat_completion/',
     {
       method: "POST",
       headers: {
-        //"Authorization": "Bearer " + API_KEY,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(apiRequestBody)
