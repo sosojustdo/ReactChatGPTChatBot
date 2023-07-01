@@ -10,7 +10,7 @@ const History = () => {
     <div className="App">
       <div style={{ position:"relative", height: "800px", width: "400px", border:"1px solid #80808045" }}>
           <LoginUser/>
-          <MessageSeparator />
+          <MessageSeparator>Chat History</MessageSeparator>
           <ChatHistory/>
       </div>
     </div>

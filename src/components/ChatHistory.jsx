@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
 
+import akaneAvatar from "../assets/akane.svg";
+import eliotAvatar from "../assets/eliot.svg";
+import emilyAvatar from "../assets/emily.svg";
+import joeAvatar from "../assets/joe.svg";
+
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { Avatar, ConversationList, Conversation } from '@chatscope/chat-ui-kit-react';
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 async function queryUserChatRecord(setData){
@@ -36,11 +44,16 @@ const ChatHistory = () => {
 
 
     console.log('ch', chat_history)
-    const listItems = chat_history.map((item, index) =>
-        <li chat_record_id={item.chat_record_id}>{item.chat_content}</li>
+    const conversationItems = chat_history.map((item, index) =>
+        <Conversation chat_record_id={item.chat_record_id} info={item.chat_content} unreadCnt={3}>
+            <Avatar src={joeAvatar} name="Lilly" />
+        </Conversation>
     );
+
     return(
-        <ul>{listItems}</ul>
+        <div>
+            <ConversationList>{conversationItems}</ConversationList>
+        </div>
     );
 }
 
