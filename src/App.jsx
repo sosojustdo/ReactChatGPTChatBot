@@ -13,6 +13,8 @@ function App() {
       sender: "ChatGPT"
     }
   ]);
+
+  //input status
   const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = async (message) => {
@@ -23,12 +25,53 @@ function App() {
     };
 
     const newMessages = [...messages, newMessage];
-
-    setMessages(newMessages);
-
+    setMessagesData(newMessages);
     setIsTyping(true);
+
+    console.log('newMessages', newMessages)
+    const app_div = document.getElementById("app_id")
+    const chat_record_id = app_div.getAttribute("chat_record_id")
+
+    const local_messages = newMessages.map(function (item, index, newMessages) {
+        return {
+          "content":item.message,
+          "role":item.sender == "ChatGPT"?"assistant":"user"
+        }
+    })
+
+    //首次提问则创建对话记录
+    /**
+    if(chat_record_id == 0){
+      const createChatBody = {
+        "user_name":document.getElementById("login_user").innerText,
+        "chat_record":local_messages
+      }
+      console.log('createChatBody', createChatBody)
+      await fetch(apiUrl + '/add_chat_record/',
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(createChatBody)
+        }
+      ).then((data) => {
+        return data.json();
+      }).then((data) => {
+        //console.log(data);
+        if (data.code == 0) {
+          app_div.setAttribute("chat_record_id", data.data)
+        }else{
+          throw new Error('add chat record server error!')
+        }
+      });
+    }*/
     await processMessageToChatGPT(newMessages);
   };
+
+  async function setMessagesData(newMessages) {
+    setMessages(newMessages);
+  }
 
   async function processMessageToChatGPT(chatMessages) {
     let apiMessages = chatMessages.map((messageObject) => {
@@ -57,21 +100,56 @@ function App() {
     }).then((data) => {
       return data.json();
     }).then((data) => {
-      console.log(data);
       let Message = data.msg
       if (data.code == 0) {
         Message = data.data
+        let new_chat_messages = [...chatMessages, {
+          message: Message,
+          sender: "ChatGPT"
+        }]
+
+        console.log('new_chat_messages', new_chat_messages)
+        //ChatGpt成功响应后，更新对话记录
+        const local_update_messages = new_chat_messages.map(function (item, index, newMessages) {
+            return {
+              "content":item.message,
+              "role":item.sender == "ChatGPT"?"assistant":"user"
+            }
+        })
+
+        const updateChatBody = {
+          "user_name":document.getElementById("login_user").innerText,
+          "chat_record":local_update_messages
+        }
+        console.log('updateChatBody', updateChatBody)
+        fetch(apiUrl + '/update_chat_record/',
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(updateChatBody)
+          }
+        ).then((data) => {
+          return data.json();
+        }).then((data) => {
+          if (data.code == 0) {
+            console.log('update chat record', data.data);
+          }else{
+            throw new Error('update chat record server error!')
+          }
+        });
+
+        setMessages(new_chat_messages);
+        setIsTyping(false);
+      }else{
+        throw new Error('ChatGpt server response have error!')
       }
-      setMessages([...chatMessages, {
-        message: Message,
-        sender: "ChatGPT"
-      }]);
-      setIsTyping(false);
     });
   }
 
   return (
-    <div className="App">
+    <div className="App" id='app_id' chat_record_id = '0'>
       <div style={{ position:"relative", height: "800px", width: "1024px"  }}>
         <MainContainer>
           <ChatContainer>

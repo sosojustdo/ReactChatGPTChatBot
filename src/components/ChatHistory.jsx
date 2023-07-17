@@ -19,7 +19,7 @@ async function queryUserChatRecord(setData){
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({"login_user_name":"Anonymous"})
+        body: JSON.stringify({"login_user_name":document.getElementById("login_user").innerText})
     });
 
     const chat_history_array = []
@@ -33,7 +33,7 @@ async function queryUserChatRecord(setData){
         });
         chat_history_array.push({"chat_record_id":chat_record_id, "chat_content":element.content, "chat_record_num":chat_record_num})
     });
-    console.log('chat_history_array', chat_history_array)
+    //console.log('chat_history_array', chat_history_array)
     if(chat_history_array != null && chat_history_array.length > 0){
       setData(chat_history_array)
     }
@@ -54,24 +54,19 @@ const ChatHistory = () => {
     }, [])
 
 
-    console.log('ch', chat_history)
-    const conversationItems = chat_history.map((item, index) =>
-        <>
+    //console.log('ch', chat_history)
+    const conversationItems = chat_history.map((item) =>
+        <div key={item.chat_record_id}>
             <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between" }}>
-                <img style={{ minWidth: "20px", minHeight: "20px", width: "20px", height: "20px" }} src={chatIcon}></img>
                 <p style={{ textAlign: "left" }}>{item.chat_content}</p>
                 <img style={{ minWidth: "20px", minHeight: "20px", width: "20px", height: "20px" }} src={deleteIcon}></img>
             </div>
             <MessageSeparator />
-        </>
+        </div>
     );
 
     return(
-        <div>
-            <ConversationList>
-                {conversationItems}
-            </ConversationList>
-        </div>
+        <div>{conversationItems}</div>
     );
 }
 
