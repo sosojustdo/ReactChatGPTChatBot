@@ -29,8 +29,7 @@ function App() {
     setIsTyping(true);
 
     console.log('newMessages', newMessages)
-    const app_div = document.getElementById("app_id")
-    const chat_record_id = app_div.getAttribute("chat_record_id")
+    const chat_record_id = document.getElementById("app_id").getAttribute("chat_record_id")
 
     const local_messages = newMessages.map(function (item, index, newMessages) {
         return {
@@ -40,7 +39,6 @@ function App() {
     })
 
     //首次提问则创建对话记录
-    /**
     if(chat_record_id == 0){
       const createChatBody = {
         "user_name":document.getElementById("login_user").innerText,
@@ -60,12 +58,12 @@ function App() {
       }).then((data) => {
         //console.log(data);
         if (data.code == 0) {
-          app_div.setAttribute("chat_record_id", data.data)
+          document.getElementById("app_id").setAttribute("chat_record_id", data.data)
         }else{
           throw new Error('add chat record server error!')
         }
       });
-    }*/
+    }
     await processMessageToChatGPT(newMessages);
   };
 
@@ -118,8 +116,8 @@ function App() {
         })
 
         const updateChatBody = {
-          "user_name":document.getElementById("login_user").innerText,
-          "chat_record":local_update_messages
+          "chat_record_id":document.getElementById("app_id").getAttribute("chat_record_id"),
+          "chat_record_list":local_update_messages
         }
         console.log('updateChatBody', updateChatBody)
         fetch(apiUrl + '/update_chat_record/',
