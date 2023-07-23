@@ -4,10 +4,12 @@ import akaneAvatar from "../assets/akane.svg";
 import eliotAvatar from "../assets/eliot.svg";
 import emilyAvatar from "../assets/emily.svg";
 import joeAvatar from "../assets/joe.svg";
-import app from "../App.jsx"
+import {pubsub_topic_reload_chat} from "../constant.jsx";
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { Avatar, ConversationHeader, Button } from '@chatscope/chat-ui-kit-react';
+
+import PubSub from 'pubsub-js';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -22,13 +24,13 @@ async function queryLoginUser(setData) {
   });
 }
 
-async function newChat() {
+const newChat = async () => {
   const initMessages = {
-    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...123",
+    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...",
     sentTime: "just now",
     sender: "ChatGPT"
   }
-  app.setMessages(initMessages)
+  PubSub.publish(pubsub_topic_reload_chat, [initMessages]);
 }
 
 const LoginUser = () => {

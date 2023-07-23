@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+import PubSub from 'pubsub-js';
+import {pubsub_topic_reload_chat} from "./constant.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -14,6 +16,9 @@ function App() {
     }
   ]);
 
+  //outer reload app useState data
+  useEffect(() => {outerReloadAppMessagesData(setMessages)}, [])
+
   //input status
   const [isTyping, setIsTyping] = useState(false);
 
@@ -25,7 +30,7 @@ function App() {
     };
 
     const newMessages = [...messages, newMessage];
-    setMessagesData(newMessages);
+    setMessages(newMessages);
     setIsTyping(true);
 
     console.log('newMessages', newMessages)
@@ -66,10 +71,6 @@ function App() {
     }
     await processMessageToChatGPT(newMessages);
   };
-
-  async function setMessagesData(newMessages) {
-    setMessages(newMessages);
-  }
 
   async function processMessageToChatGPT(chatMessages) {
     let apiMessages = chatMessages.map((messageObject) => {
@@ -151,10 +152,7 @@ function App() {
       <div style={{ position:"relative", height: "800px", width: "1024px"  }}>
         <MainContainer>
           <ChatContainer>
-            <MessageList
-              loadingMorePosition="bottom"
-              typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}
-            >
+            <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
                 //console.log(message)
                 return <Message key={i} model={message} />
@@ -167,5 +165,13 @@ function App() {
     </div>
   )
 }
+
+const outerReloadAppMessagesData = async(setData) => {
+  PubSub.subscribe(pubsub_topic_reload_chat, (msg, data) => {
+    setData(data)
+  });
+}
+
+
 
 export default App

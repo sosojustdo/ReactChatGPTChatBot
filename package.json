@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.10.1",
+    "pubsub-js": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-simple-chatbot": "^0.6.1"

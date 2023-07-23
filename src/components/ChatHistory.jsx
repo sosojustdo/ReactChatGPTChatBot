@@ -39,27 +39,24 @@ async function queryUserChatRecord(setData){
     }
 }
 
-async function selectChat(e){
-    alert("selectChat:" + e.target.getAttribute('chat_record_id'))
+const selectChat = (e) => {
+    console.log("selectChat:", e.target.getAttribute("crd"))
 }
 
-async function deleteChat(e){
-    alert("deleteChat:" + e.target.getAttribute('chat_record_id'))
+const deleteChat = (e) => {
+    console.log("deleteChat:", e.target.getAttribute("crd"))
 }
 
 const ChatHistory = () => {
     const [chat_history, setChatHistory] = useState([])
-        useEffect(() => {
-        queryUserChatRecord(setChatHistory)
-    }, [])
-
+    useEffect(() => {queryUserChatRecord(setChatHistory)}, [])
 
     //console.log('ch', chat_history)
-    const conversationItems = chat_history.map((item) =>
-        <div key={item.chat_record_id}>
+    const conversationItems = chat_history.map((item, i) =>
+        <div key={i}>
             <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between" }}>
-                <p style={{ textAlign: "left" }}>{item.chat_content}</p>
-                <img style={{ minWidth: "20px", minHeight: "20px", width: "20px", height: "20px" }} src={deleteIcon}></img>
+                <p style={{ textAlign: "left" }} crd = {item.chat_record_id} onClick={selectChat}>{item.chat_content}</p>
+                <img style={{ minWidth: "20px", minHeight: "20px", width: "20px", height: "20px" }} crd = {item.chat_record_id} src={deleteIcon} onClick={deleteChat}></img>
             </div>
             <MessageSeparator />
         </div>
