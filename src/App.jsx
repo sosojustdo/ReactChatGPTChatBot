@@ -3,7 +3,7 @@ import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
-import {pubsub_topic_reload_chat} from "./constant.jsx";
+import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./constant.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -167,11 +167,13 @@ function App() {
 }
 
 const outerReloadAppMessagesData = async(setData) => {
-  PubSub.subscribe(pubsub_topic_reload_chat, (msg, data) => {
+  PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
+    setData(data)
+  });
+
+  PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
     setData(data)
   });
 }
-
-
 
 export default App
