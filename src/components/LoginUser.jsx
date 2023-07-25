@@ -26,7 +26,7 @@ async function queryLoginUser(setData) {
 
 const newChat = async () => {
   const initMessages = {
-    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...",
+    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...123",
     sentTime: "just now",
     sender: "ChatGPT"
   }
@@ -35,10 +35,7 @@ const newChat = async () => {
 
 const LoginUser = () => {
   const [login_user_name, setLoginUserName] = useState('admin')
-  useEffect(() => {
-    queryLoginUser(setLoginUserName)
-  }, [])
-
+  useEffect(() => {queryLoginUser(setLoginUserName)}, [])
 
   return (
     <ConversationHeader>
