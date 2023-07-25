@@ -1,16 +1,8 @@
 import { useState, useEffect } from "react";
 
-import akaneAvatar from "../assets/akane.svg";
-import eliotAvatar from "../assets/eliot.svg";
-import emilyAvatar from "../assets/emily.svg";
-import joeAvatar from "../assets/joe.svg";
-import chatIcon from "../assets/chat.png";
-import deleteIcon from "../assets/delete.png";
+import {pubsub_topic_reload_select_chat, pubsub_topic_delete_chat_history} from "../Constant.jsx";
+import ChatHistoryItem from "./ChatHistoryItem";
 
-import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import { Avatar, ConversationList, Conversation, MessageSeparator } from '@chatscope/chat-ui-kit-react';
-
-import {pubsub_topic_reload_select_chat} from "../constant.jsx";
 import PubSub from 'pubsub-js';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -69,34 +61,40 @@ const selectChat = async(e) => {
             //console.log('selectChatMessages', selectChatMessages)
             PubSub.publish(pubsub_topic_reload_select_chat, selectChatMessages);
         }else{
-            throw new Error('add chat record server error!')
+            throw new Error('select chat record server error!')
         }
     });
 }
 
-const deleteChat = (e) => {
-    console.log("deleteChat:", e.target.getAttribute("crd"))
+const deleteChat = async(e) => {
+    //console.log("deleteChat:", e.target.getAttribute("crd"))
     const chat_record_id = e.target.getAttribute("crd")
+    await fetch(apiUrl + '/delete_chat_record/',
+    {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body: JSON.stringify({"chat_record_id":chat_record_id})
+    }
+    ).then((data) => {
+        return data.json();
+    }).then((data) => {
+        if (data.code == 0) {
+            PubSub.publish(pubsub_topic_delete_chat_history, chat_record_id);
+        }else{
+            throw new Error('delete chat record server error!')
+        }
+    });
 }
 
-const ChatHistory = () => {
+const ChatHistoryList = () => {
     const [chat_history, setChatHistory] = useState([])
     useEffect(() => {queryUserChatRecord(setChatHistory)}, [])
 
-    //console.log('ch', chat_history)
-    const conversationItems = chat_history.map((item, i) =>
-        <div key={i}>
-            <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between" }}>
-                <p style={{ textAlign: "left" }} crd = {item.chat_record_id} onClick={selectChat}>{item.chat_content}</p>
-                <img style={{ minWidth: "20px", minHeight: "20px", width: "20px", height: "20px" }} crd = {item.chat_record_id} src={deleteIcon} onClick={deleteChat}></img>
-            </div>
-            <MessageSeparator />
-        </div>
-    );
-
     return(
-        <div>{conversationItems}</div>
+        <ChatHistoryItem chat_history={chat_history} selectChat={setChatHistory} deleteChat={setChatHistory}/>
     );
 }
 
-export default ChatHistory;
+export default ChatHistoryList;

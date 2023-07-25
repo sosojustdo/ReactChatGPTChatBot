@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import History from './History'
-import './index.css'
+import './Index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <App />

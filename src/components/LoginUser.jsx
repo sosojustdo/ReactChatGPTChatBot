@@ -4,7 +4,7 @@ import akaneAvatar from "../assets/akane.svg";
 import eliotAvatar from "../assets/eliot.svg";
 import emilyAvatar from "../assets/emily.svg";
 import joeAvatar from "../assets/joe.svg";
-import {pubsub_topic_reload_new_chat} from "../constant.jsx";
+import {pubsub_topic_reload_new_chat} from "../Constant.jsx";
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { Avatar, ConversationHeader, Button } from '@chatscope/chat-ui-kit-react';
