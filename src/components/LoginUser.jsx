@@ -26,7 +26,7 @@ async function queryLoginUser(setData) {
 
 const newChat = async () => {
   const initMessages = {
-    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...123",
+    message: "Hello, I'm Nice Chat Bot, Ask Me Anything...",
     sentTime: "just now",
     sender: "ChatGPT"
   }
