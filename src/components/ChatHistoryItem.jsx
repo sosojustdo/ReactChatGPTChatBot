@@ -36,7 +36,7 @@ const ChatHistoryItem = ({ chat_record_id, chat_content, deleteData }) => {
                     selectChatMessages.push(chat_item)
                 });
                 //console.log('selectChatMessages', selectChatMessages)
-                PubSub.publish(pubsub_topic_reload_select_chat, selectChatMessages);
+                PubSub.publish(pubsub_topic_reload_select_chat, {'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id});
             }else{
                 throw new Error('select chat history server error!')
             }

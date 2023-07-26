@@ -172,7 +172,9 @@ const outerReloadAppMessagesData = async(setData) => {
   });
 
   PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
-    setData(data)
+    //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
+    setData(data.selectChatMessages)
+    document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
   });
 }
 
