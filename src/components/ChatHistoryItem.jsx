@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import deleteIcon from "../assets/delete.png";
-import {pubsub_topic_reload_select_chat, pubsub_topic_delete_chat_history} from "../Constant.jsx";
+import {pubsub_topic_reload_select_chat} from "../Constant.jsx";
 import { MessageSeparator } from '@chatscope/chat-ui-kit-react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
@@ -58,12 +58,11 @@ const ChatHistoryItem = ({ chat_record_id, chat_content, deleteData }) => {
             return data.json();
         }).then((data) => {
             if (data.code == 0) {
-                //PubSub.publish(pubsub_topic_delete_chat_history, crd);
-            }else{
                 deleteData(function(prev) {
                     return prev.filter(item => item.chat_record_id != crd)
                 })
-                //throw new Error('delete chat history server error!')
+            }else{
+                throw new Error('delete chat history server error!')
             }
         });
     }
