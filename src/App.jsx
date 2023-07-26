@@ -169,6 +169,7 @@ function App() {
 const outerReloadAppMessagesData = async(setData) => {
   PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
     setData(data)
+    document.getElementById("app_id").setAttribute("chat_record_id", 0)
   });
 
   PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
