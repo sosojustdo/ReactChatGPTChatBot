@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
+
+import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
 import './App.css'
+import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
+
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
-import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const chatGptWarp = new ChatGPTWarp();
 
 function App() {
+  //MessageList
   const [messages, setMessages] = useState([
     {
       message: "Hello, I'm Nice Chat Bot, Ask Me Anything...",
@@ -17,15 +21,13 @@ function App() {
   ]);
 
   //MessageInput
-  const [ value, setInputValue ] = useState("")
-  const [sendDisabled, setSendDisabled] = useState(true)
-  useEffect(() => {setSendDisabled(value.length===0)},[value])
-
-  //outer reload app useState data
-  useEffect(() => {outerReloadAppMessagesData(setMessages, setInputValue)}, [])
-
-  //input status
   const [isTyping, setIsTyping] = useState(false);
+  const [inputValue, setInputValue] = useState("")
+  const [sendDisabled, setSendDisabled] = useState(true)
+  useEffect(() => {setSendDisabled(inputValue.length===0)},[inputValue])
+
+  //reload app useState data
+  useEffect(() => {outerReloadAppMessagesData(setMessages, setInputValue)}, [])
 
   const handleSend = async (message) => {
     const newMessage = {
@@ -38,41 +40,20 @@ function App() {
     setMessages(newMessages);
     setIsTyping(true);
 
-    console.log('newMessages', newMessages)
     const chat_record_id = document.getElementById("app_id").getAttribute("chat_record_id")
-
-    const local_messages = newMessages.map(function (item, index, newMessages) {
-        return {
-          "content":item.message,
-          "role":item.sender == "ChatGPT"?"assistant":"user"
-        }
-    })
 
     //首次提问则创建对话记录
     if(chat_record_id == 0){
       const createChatBody = {
         "user_name":document.getElementById("login_user").innerText,
-        "chat_record":local_messages
+        "chat_record":newMessages.map(function (item, index, newMessages) {
+          return {
+            "content":item.message,
+            "role":item.sender == "ChatGPT"?"assistant":"user"
+          }
+        })
       }
-      console.log('createChatBody', createChatBody)
-      await fetch(apiUrl + '/add_chat_record/',
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(createChatBody)
-        }
-      ).then((data) => {
-        return data.json();
-      }).then((data) => {
-        //console.log(data);
-        if (data.code == 0) {
-          document.getElementById("app_id").setAttribute("chat_record_id", data.data)
-        }else{
-          throw new Error('add chat record server error!')
-        }
-      });
+      chatGptWarp.addChatRecord(createChatBody)
     }
     await processMessageToChatGPT(newMessages);
   };
@@ -94,65 +75,8 @@ function App() {
       ]
     }
 
-    await fetch(apiUrl + '/chat_completion/',
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(apiRequestBody)
-    }).then((data) => {
-      return data.json();
-    }).then((data) => {
-      let Message = data.msg
-      if (data.code == 0) {
-        Message = data.data
-        let new_chat_messages = [...chatMessages, {
-          message: Message,
-          sender: "ChatGPT"
-        }]
-
-        console.log('new_chat_messages', new_chat_messages)
-        //ChatGpt成功响应后，更新对话记录
-        const local_update_messages = new_chat_messages.map(function (item, index, newMessages) {
-            return {
-              "content":item.message,
-              "role":item.sender == "ChatGPT"?"assistant":"user"
-            }
-        })
-
-        const updateChatBody = {
-          "chat_record_id":document.getElementById("app_id").getAttribute("chat_record_id"),
-          "chat_record_list":local_update_messages
-        }
-        console.log('updateChatBody', updateChatBody)
-        fetch(apiUrl + '/update_chat_record/',
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updateChatBody)
-          }
-        ).then((data) => {
-          return data.json();
-        }).then((data) => {
-          if (data.code == 0) {
-            console.log('update chat record', data.data);
-          }else{
-            throw new Error('update chat record server error!')
-          }
-        });
-
-        setMessages(new_chat_messages);
-        setIsTyping(false);
-      }else{
-        throw new Error('ChatGpt server response have error!')
-      }
-    });
+    chatGptWarp.requestChatGPTAndUpdateChatRecord(apiRequestBody, setMessages, setIsTyping, setInputValue)
   }
-
-
 
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
@@ -161,11 +85,11 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                console.log(message)
+                //console.log(message)
                 return <Message key={i} model={message} />
               })}
             </MessageList>
-            <MessageInput sendDisabled={sendDisabled} onChange={(val) => setInputValue(val)} value={value} attachButton={false} placeholder="Type Message Here..." onSend={handleSend} onPaste={(evt) => {
+            <MessageInput sendDisabled={sendDisabled} onChange={(val) => setInputValue(val)} value={inputValue} attachButton={false} placeholder="Type Message Here..." onSend={handleSend} onPaste={(evt) => {
                 evt.preventDefault();
                 setInputValue(evt.clipboardData.getData("text"));
             }}/>
@@ -176,16 +100,16 @@ function App() {
   )
 }
 
-const outerReloadAppMessagesData = async(setData, setInputValue) => {
+const outerReloadAppMessagesData = async(setMessages, setInputValue) => {
   PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
-    setData(data)
+    setMessages(data)
     setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", 0)
   });
 
   PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
     //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
-    setData(data.selectChatMessages)
+    setMessages(data.selectChatMessages)
     setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
   });
