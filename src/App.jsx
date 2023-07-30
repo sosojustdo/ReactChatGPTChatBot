@@ -16,8 +16,13 @@ function App() {
     }
   ]);
 
+  //MessageInput
+  const [ value, setInputValue ] = useState("")
+  const [sendDisabled, setSendDisabled] = useState(true)
+  useEffect(() => {setSendDisabled(value.length===0)},[value])
+
   //outer reload app useState data
-  useEffect(() => {outerReloadAppMessagesData(setMessages)}, [])
+  useEffect(() => {outerReloadAppMessagesData(setMessages, setInputValue)}, [])
 
   //input status
   const [isTyping, setIsTyping] = useState(false);
@@ -147,6 +152,8 @@ function App() {
     });
   }
 
+
+
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
       <div style={{ position:"relative", height: "800px", width: "1024px"  }}>
@@ -154,11 +161,14 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                //console.log(message)
+                console.log(message)
                 return <Message key={i} model={message} />
               })}
             </MessageList>
-            <MessageInput attachButton={false} placeholder="Type Message Here..." onSend={handleSend} />
+            <MessageInput sendDisabled={sendDisabled} onChange={(val) => setInputValue(val)} value={value} attachButton={false} placeholder="Type Message Here..." onSend={handleSend} onPaste={(evt) => {
+                evt.preventDefault();
+                setInputValue(evt.clipboardData.getData("text"));
+            }}/>
           </ChatContainer>
         </MainContainer>
       </div>
@@ -166,15 +176,17 @@ function App() {
   )
 }
 
-const outerReloadAppMessagesData = async(setData) => {
+const outerReloadAppMessagesData = async(setData, setInputValue) => {
   PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
     setData(data)
+    setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", 0)
   });
 
   PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
     //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
     setData(data.selectChatMessages)
+    setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
   });
 }
