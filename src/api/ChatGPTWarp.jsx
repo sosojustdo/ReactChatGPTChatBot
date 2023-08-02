@@ -1,5 +1,5 @@
 import React from 'react';
-import {pubsub_topic_reload_select_chat} from "../Constant.jsx";
+import {pubsub_topic_reload_select_chat, pubsub_topic_reload_new_chat, initMessages} from "../Constant.jsx";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 import PubSub from 'pubsub-js';
@@ -7,7 +7,7 @@ import PubSub from 'pubsub-js';
 class ChatGPTWarp extends React.Component {
 
     //请求chatgpt成功后更新对话记录
-    requestChatGPTAndUpdateChatRecord = async(apiRequestBody, setMessages, setIsTyping, setInputValue) => {
+    requestChatGPTAndUpdateChatRecord = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue) => {
         await fetch(apiUrl + '/chat_completion/',
         {
             method: "POST",
@@ -109,6 +109,7 @@ class ChatGPTWarp extends React.Component {
                 deleteData(function(prev) {
                     return prev.filter(item => item.chat_record_id != chat_record_id)
                 })
+                PubSub.publish(pubsub_topic_reload_new_chat, [initMessages]);
             }else{
                 throw new Error('delete chat history server error!')
             }
@@ -148,7 +149,7 @@ class ChatGPTWarp extends React.Component {
 
     //根据当前登录用户获取历史对话记录
     queryUserChatRecord = async(login_user_name) => {
-        const chat_history_array = []
+        let chat_history_array = []
         await fetch(apiUrl + '/query_chat_record_user/',
             {
                 method: "POST",
@@ -177,7 +178,7 @@ class ChatGPTWarp extends React.Component {
         return chat_history_array
     }
 
-    //查询当前登录人信息
+    //同步查询当前登录人信息
     queryLoginUser = async() => {
         let login_user_name = ''
         await fetch(apiUrl + '/current_user/')
@@ -185,13 +186,13 @@ class ChatGPTWarp extends React.Component {
         .then(data => {
             if (data.code == 0) {
                 login_user_name = data.data
+            }else{
+                throw new Error('queryLoginUser server error!')
             }
-        })
-        .catch((err) => {
-            console.log(err.message);
         });
         return login_user_name
     }
+
 }
 
 export default ChatGPTWarp;

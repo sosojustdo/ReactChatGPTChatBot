@@ -7,6 +7,7 @@ import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
+import Prism from 'prismjs';
 
 const chatGptWarp = new ChatGPTWarp();
 
@@ -75,7 +76,7 @@ function App() {
       ]
     }
 
-    chatGptWarp.requestChatGPTAndUpdateChatRecord(apiRequestBody, setMessages, setIsTyping, setInputValue)
+    chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
   }
 
   return (
@@ -85,7 +86,15 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                //console.log(message)
+                const code_message = message.message.indexOf(("```")) != -1
+                if(code_message){
+                  console.log('code_message', code_message)
+                  const lines = message.message.split('\n')
+                  lines.map((line, i) => {
+                    console.log('line', line)
+                    return <Message key={i} model={line} />
+                  })
+                }
                 return <Message key={i} model={message} />
               })}
             </MessageList>
