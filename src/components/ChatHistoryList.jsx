@@ -2,7 +2,7 @@ import ChatHistoryItem from "./ChatHistoryItem";
 
 const ChatHistoryList = ({ listData, deleteData }) => {
     return(
-        <div>
+        <div style={{ height:"720px", overflowY:"auto" }}>
             {listData.map((item, i) => {
                 return(
                     <div key={i}>

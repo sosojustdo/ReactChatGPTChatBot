@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react'
+import { React, useState, useEffect } from 'react'
 
 import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
 import './App.css'
 import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
+import MessageCode from './components/MessageCode.jsx'
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
-import Prism from 'prismjs';
 
 const chatGptWarp = new ChatGPTWarp();
+const codeRegex = /```(\w+)\n([^\`]*?)\n```/gm;
 
 function App() {
   //MessageList
@@ -75,27 +76,44 @@ function App() {
         ...apiMessages
       ]
     }
-
     chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
   }
 
+  //https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
-      <div style={{ position:"relative", height: "800px", width: "1024px"  }}>
+      <div style={{ position:"relative", height: "800px", width: "1024px" }}>
         <MainContainer>
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                const code_message = message.message.indexOf(("```")) != -1
-                if(code_message){
-                  console.log('code_message', code_message)
-                  const lines = message.message.split('\n')
-                  lines.map((line, i) => {
-                    console.log('line', line)
-                    return <Message key={i} model={line} />
-                  })
+                const include_code = message.message.indexOf(("```")) != -1
+                if(include_code){
+                  const lang_array = []
+                  const code_array = []
+                  const codeMessages = message.message.match(codeRegex);
+                  const parsed_code = codeMessages.map((block) => {
+                    const [_, lang, code] = block.match(/```(\w+)\n([\s\S]+?)\n```/);
+                    lang_array.push(lang)
+                    code_array.push(code)
+                    return {
+                      lang,
+                      code
+                    };
+                  });
+
+                  const texts = message.message.split(codeRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
+                  /**
+                  console.log('parsed-code', parsed_code)
+                  console.log('texts', texts)
+                  console.log('lang_array', lang_array)
+                  console.log('code_array', code_array)
+                  console.log('xx', texts[1] === parsed_code[0].code)
+                   */
+                  return <MessageCode texts={texts} code_array={code_array} lang_array={lang_array} />
+                }else{
+                  return <Message key={i} model={message} />
                 }
-                return <Message key={i} model={message} />
               })}
             </MessageList>
             <MessageInput sendDisabled={sendDisabled} onChange={(val) => setInputValue(val)} value={inputValue} attachButton={false} placeholder="Type Message Here..." onSend={handleSend} onPaste={(evt) => {
