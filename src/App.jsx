@@ -79,7 +79,6 @@ function App() {
     chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
   }
 
-  //https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
       <div style={{ position:"relative", height: "800px", width: "1024px" }}>
@@ -110,7 +109,9 @@ function App() {
                   console.log('code_array', code_array)
                   console.log('xx', texts[1] === parsed_code[0].code)
                    */
-                  return <MessageCode key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
+
+                  //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
+                  return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
                 }else{
                   //console.log('plainTextMessage', message)
                   return <Message key={i} model={message} />
