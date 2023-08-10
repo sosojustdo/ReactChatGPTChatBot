@@ -110,8 +110,9 @@ function App() {
                   console.log('code_array', code_array)
                   console.log('xx', texts[1] === parsed_code[0].code)
                    */
-                  return <MessageCode texts={texts} code_array={code_array} lang_array={lang_array} />
+                  return <MessageCode key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
                 }else{
+                  //console.log('plainTextMessage', message)
                   return <Message key={i} model={message} />
                 }
               })}
