@@ -15,7 +15,6 @@ export default defineConfig({
       output: {
         chunkFileNames: 'chat3/js/[name]-[hash].js',
         entryFileNames: 'chat3/js/[name]-[hash].js',
-        //assetFileNames: '[ext]/[name]-[hash].[ext]',
         assetFileNames: (chunkInfo) => {
           // 用后缀名称进行区别处理
           let subDir = "assets";
