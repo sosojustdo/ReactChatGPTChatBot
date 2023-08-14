@@ -15,7 +15,8 @@
     "pubsub-js": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-simple-chatbot": "^0.6.1"
+    "react-simple-chatbot": "^0.6.1",
+    "react-syntax-highlighter": "^15.5.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.27",
