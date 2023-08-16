@@ -26,6 +26,7 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState("")
   const [sendDisabled, setSendDisabled] = useState(true)
+
   useEffect(() => {setSendDisabled(inputValue.length===0)},[inputValue])
 
   //reload app useState data
@@ -43,7 +44,6 @@ function App() {
     setIsTyping(true);
 
     const chat_record_id = document.getElementById("app_id").getAttribute("chat_record_id")
-
     //首次提问则创建对话记录
     if(chat_record_id == 0){
       const createChatBody = {
@@ -57,8 +57,29 @@ function App() {
       }
       chatGptWarp.addChatRecord(createChatBody)
     }
-    await processMessageToChatGPT(newMessages);
+
+    //await processMessageToChatGPT(newMessages);
+    await processMessageToChatGPTStream(newMessages);
   };
+
+  async function processMessageToChatGPTStream(chatMessages) {
+    let apiMessages = chatMessages.map((messageObject) => {
+      let role = "";
+      if (messageObject.sender === "ChatGPT") {
+        role = "assistant";
+      } else {
+        role = "user";
+      }
+      return { role: role, content: messageObject.message}
+    });
+
+    const apiRequestBody = {
+      "messages": [
+        ...apiMessages
+      ]
+    }
+    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
+  }
 
   async function processMessageToChatGPT(chatMessages) {
     let apiMessages = chatMessages.map((messageObject) => {

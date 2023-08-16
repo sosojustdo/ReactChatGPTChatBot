@@ -6,6 +6,77 @@ import PubSub from 'pubsub-js';
 
 class ChatGPTWarp extends React.Component {
 
+    //请求chatgpt成功后更新对话记录-流式
+    requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue) => {
+        const response = await fetch(apiUrl + '/chat_completion_stream/',
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(apiRequestBody)
+        });
+
+        // 循环处理流式数据
+        const reader = response.body.getReader();
+        const value_test_array = []
+        let loop_message = ""
+        while(true) {
+            const {done, value} = await reader.read();
+            if(done) {
+                const full_message = value_test_array.join("")
+                let new_chat_messages = [...chatMessages, {
+                    message: full_message,
+                    sender: "ChatGPT"
+                }]
+
+                const local_update_messages = new_chat_messages.map(function (item, index, newMessages) {
+                    return {
+                    "content":item.message,
+                    "role":item.sender == "ChatGPT"?"assistant":"user"
+                    }
+                })
+
+                const updateChatBody = {
+                    "chat_record_id":document.getElementById("app_id").getAttribute("chat_record_id"),
+                    "chat_record_list":local_update_messages
+                }
+
+                fetch(apiUrl + '/update_chat_record/',
+                {
+                    method: "POST",
+                    headers: {
+                    "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(updateChatBody)
+                }
+                ).then((data) => {
+                    return data.json();
+                }).then((data) => {
+                    if (data.code == 0) {
+                        //console.log('update chat record', data.data);
+                    }else{
+                        throw new Error('update chat record server error!')
+                    }
+                });
+                setIsTyping(false);
+                setInputValue('')
+                break;
+            }
+
+            const valueText = new TextDecoder().decode(value);
+            value_test_array.push(valueText)
+            loop_message = loop_message + valueText
+            const loop_new_chat_messages = [...chatMessages, {
+                message: loop_message,
+                sender: "ChatGPT"
+            }]
+            console.log(loop_new_chat_messages)
+            setMessages(loop_new_chat_messages);
+        }
+    }
+
+
     //请求chatgpt成功后更新对话记录
     requestChatGPTAndUpdateChatRecord = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue) => {
         await fetch(apiUrl + '/chat_completion/',
