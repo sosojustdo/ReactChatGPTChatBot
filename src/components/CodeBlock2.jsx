@@ -3,7 +3,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const CodeBlock2 = ({codeBlock, language}) => {
   return (
-    <SyntaxHighlighter language={language} style={vscDarkPlus} customStyle={{ borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"0.6em 0.9em", fontSize:".91em" }} showLineNumbers="true" wrapLongLines="true">
+    <SyntaxHighlighter language={language} style={vscDarkPlus} customStyle={{ overflowX:"auto", borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"0.6em 0.9em", fontSize:".91em" }}>
       {codeBlock}
     </SyntaxHighlighter>
   );

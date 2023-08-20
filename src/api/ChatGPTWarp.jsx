@@ -7,7 +7,7 @@ import PubSub from 'pubsub-js';
 class ChatGPTWarp extends React.Component {
 
     //请求chatgpt成功后更新对话记录-流式
-    requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue) => {
+    requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputStream) => {
         const response = await fetch(apiUrl + '/chat_completion_stream/',
         {
             method: "POST",
@@ -60,25 +60,26 @@ class ChatGPTWarp extends React.Component {
                     }
                 });
                 setIsTyping(false);
-                setInputValue('')
+                setInputStream(false)
                 break;
             }
 
             const valueText = new TextDecoder().decode(value);
+            //console.log(valueText)
             value_test_array.push(valueText)
             loop_message = loop_message + valueText
             const loop_new_chat_messages = [...chatMessages, {
                 message: loop_message,
                 sender: "ChatGPT"
             }]
-            console.log(loop_new_chat_messages)
-            setMessages(loop_new_chat_messages);
+            setMessages(loop_new_chat_messages)
+            setInputStream(true)
         }
     }
 
 
     //请求chatgpt成功后更新对话记录
-    requestChatGPTAndUpdateChatRecord = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue) => {
+    requestChatGPTAndUpdateChatRecord = async(chatMessages, apiRequestBody, setMessages, setIsTyping) => {
         await fetch(apiUrl + '/chat_completion/',
         {
             method: "POST",
@@ -132,8 +133,6 @@ class ChatGPTWarp extends React.Component {
                 });
                 setMessages(new_chat_messages);
                 setIsTyping(false);
-                //清空输入框
-                setInputValue('')
             }else{
                 throw new Error('ChatGpt server response have error!')
             }

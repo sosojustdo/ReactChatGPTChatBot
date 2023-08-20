@@ -10,7 +10,12 @@ import { MainContainer, ChatContainer, MessageList, Message, MessageInput, Typin
 import PubSub from 'pubsub-js';
 
 const chatGptWarp = new ChatGPTWarp();
+
 const codeRegex = /```(\w+)\n([^\`]*?)\n```/gm;
+const codeBlockRegex = /```(\w+)\n([\s\S]+?)\n```/;
+
+const codeStreamRegex = /```(\w+)\n([^\`]*?)\n/gm;
+const codeBlockStreamRegex = /```(\w+)\n([\s\S]+?)\n/;
 
 function App() {
   //MessageList
@@ -24,15 +29,15 @@ function App() {
 
   //MessageInput
   const [isTyping, setIsTyping] = useState(false);
-  const [inputValue, setInputValue] = useState("")
-  const [sendDisabled, setSendDisabled] = useState(true)
-
-  useEffect(() => {setSendDisabled(inputValue.length===0)},[inputValue])
+  const [inputStream, setInputStream] = useState(false)
 
   //reload app useState data
-  useEffect(() => {outerReloadAppMessagesData(setMessages, setInputValue)}, [])
+  useEffect(() => {outerReloadAppMessagesData(setMessages)}, [])
 
   const handleSend = async (message) => {
+    //replace html or css for copy content
+    //bugfix:https://github.com/chatscope/chat-ui-kit-react/issues/22
+    message = message.replace(/<[^>]*>|\s+/g, '');
     const newMessage = {
       message,
       direction: 'outgoing',
@@ -78,7 +83,7 @@ function App() {
         ...apiMessages
       ]
     }
-    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
+    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputStream)
   }
 
   async function processMessageToChatGPT(chatMessages) {
@@ -97,7 +102,7 @@ function App() {
         ...apiMessages
       ]
     }
-    chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputValue)
+    chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping)
   }
 
   return (
@@ -107,42 +112,63 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                const include_code = message.message.indexOf(("```")) != -1
-                if(include_code){
-                  const lang_array = []
-                  const code_array = []
-                  const codeMessages = message.message.match(codeRegex);
-                  const parsed_code = codeMessages.map((block) => {
-                    const [_, lang, code] = block.match(/```(\w+)\n([\s\S]+?)\n```/);
-                    lang_array.push(lang)
-                    code_array.push(code)
-                    return {
-                      lang,
-                      code
-                    };
-                  });
-
-                  const texts = message.message.split(codeRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
-                  /**
-                  console.log('parsed-code', parsed_code)
-                  console.log('texts', texts)
-                  console.log('lang_array', lang_array)
-                  console.log('code_array', code_array)
-                  console.log('xx', texts[1] === parsed_code[0].code)
-                   */
-
-                  //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
-                  return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
+                const lastStreamMessageArray = []
+                if(i == messages.length-1 && inputStream){
+                  lastStreamMessageArray.push(message.message)
+                  const lastStreamMessageFullText = lastStreamMessageArray.join("")
+                  const include_code = lastStreamMessageFullText.indexOf(("```")) != -1
+                  if(include_code){
+                    const lang_array = []
+                    const code_array = []
+                    const codeMessages = lastStreamMessageFullText.match(codeStreamRegex);
+                    if(codeMessages){
+                      const parsed_code = codeMessages.map((block) => {
+                        const [_, lang, code] = block.match(codeBlockStreamRegex);
+                        if(lang != ''){
+                          lang_array.push(lang)
+                        }
+                        if(code != ''){
+                          code_array.push(code)
+                        }
+                        return {
+                          lang,
+                          code
+                        };
+                      });
+                    }
+                    const texts = lastStreamMessageFullText.split(codeStreamRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
+                    //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
+                    return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
+                  }else{
+                    return <Message key={i} model={message} />
+                  }
                 }else{
-                  //console.log('plainTextMessage', message)
-                  return <Message key={i} model={message} />
+                  const include_code = message.message.indexOf(("```")) != -1
+                  if(include_code){
+                    const lang_array = []
+                    const code_array = []
+                    const codeMessages = message.message.match(codeRegex);
+                    if(codeMessages){
+                      const parsed_code = codeMessages.map((block) => {
+                        const [_, lang, code] = block.match(codeBlockRegex);
+                        lang_array.push(lang)
+                        code_array.push(code)
+                        return {
+                          lang,
+                          code
+                        };
+                      });
+                    }
+                    const texts = message.message.split(codeRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
+                    //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
+                    return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
+                  }else{
+                    return <Message key={i} model={message} />
+                  }
                 }
               })}
             </MessageList>
-            <MessageInput sendDisabled={sendDisabled} onChange={(val) => setInputValue(val)} value={inputValue} attachButton={false} placeholder="Type Message Here..." onSend={handleSend} onPaste={(evt) => {
-                evt.preventDefault();
-                setInputValue(evt.clipboardData.getData("text"));
-            }}/>
+            <MessageInput attachButton={false} placeholder="Type Message Here..." onSend={handleSend}/>
           </ChatContainer>
         </MainContainer>
       </div>
@@ -150,17 +176,15 @@ function App() {
   )
 }
 
-const outerReloadAppMessagesData = async(setMessages, setInputValue) => {
+const outerReloadAppMessagesData = async(setMessages) => {
   PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
     setMessages(data)
-    setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", 0)
   });
 
   PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
     //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
     setMessages(data.selectChatMessages)
-    setInputValue('')
     document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
   });
 }
