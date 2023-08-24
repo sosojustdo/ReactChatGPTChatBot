@@ -9,13 +9,13 @@ import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
 
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
 const chatGptWarp = new ChatGPTWarp();
 
 const codeRegex = /```(\w+)\n([^\`]*?)\n```/gm;
 const codeBlockRegex = /```(\w+)\n([\s\S]+?)\n```/;
-
-const codeStreamRegex = /```(\w+)\n([^\`]*?)\n/gm;
-const codeBlockStreamRegex = /```(\w+)\n([\s\S]+?)\n/;
 
 function App() {
   //MessageList
@@ -112,36 +112,12 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                const lastStreamMessageArray = []
                 if(i == messages.length-1 && inputStream){
-                  lastStreamMessageArray.push(message.message)
-                  const lastStreamMessageFullText = lastStreamMessageArray.join("")
-                  const include_code = lastStreamMessageFullText.indexOf(("```")) != -1
-                  if(include_code){
-                    const lang_array = []
-                    const code_array = []
-                    const codeMessages = lastStreamMessageFullText.match(codeStreamRegex);
-                    if(codeMessages){
-                      const parsed_code = codeMessages.map((block) => {
-                        const [_, lang, code] = block.match(codeBlockStreamRegex);
-                        if(lang != ''){
-                          lang_array.push(lang)
-                        }
-                        if(code != ''){
-                          code_array.push(code)
-                        }
-                        return {
-                          lang,
-                          code
-                        };
-                      });
-                    }
-                    const texts = lastStreamMessageFullText.split(codeStreamRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
-                    //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
-                    return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
-                  }else{
-                    return <Message key={i} model={message} />
-                  }
+                  return (
+                    <SyntaxHighlighter as="Message3" language="auto" style={vs2015} customStyle={{ overflowX:"auto", borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"0.6em 0.9em", fontSize:".91em" }} >
+                      {message.message}
+                    </SyntaxHighlighter>
+                  );
                 }else{
                   const include_code = message.message.indexOf(("```")) != -1
                   if(include_code){
