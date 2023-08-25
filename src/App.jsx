@@ -114,7 +114,7 @@ function App() {
               {messages.map((message, i) => {
                 if(i == messages.length-1 && inputStream){
                   return (
-                    <SyntaxHighlighter key={i} as="Message2" language="auto" style={vs2015} customStyle={{ overflowX:"auto", borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"0.6em 0.9em", fontSize:".91em" }} >
+                    <SyntaxHighlighter key={i} as="Message2" language="auto" style={vs2015} customStyle={{ overflowX:"auto", borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"1.9em 0.9em", fontSize:".91em" }} wrapLongLines="true">
                       {message.message}
                     </SyntaxHighlighter>
                   );
