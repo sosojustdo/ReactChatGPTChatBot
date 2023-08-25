@@ -11,9 +11,12 @@ const chatGptWarp = new ChatGPTWarp();
 
 const History = () => {
   const [chat_history, setChatHistory] = useState([])
+  const [login_user_name, setLoginUserName] = useState('')
+
   useEffect(() => {
     chatGptWarp.queryLoginUser().then((lun) => {
-      chatGptWarp.queryUserChatRecord('admin').then((chat_history_array) => {
+      setLoginUserName(lun)
+      chatGptWarp.queryUserChatRecord(lun).then((chat_history_array) => {
         setChatHistory(chat_history_array)
       })
     })
@@ -21,8 +24,8 @@ const History = () => {
 
   return (
     <div className="App">
-      <div style={{ position:"relative", height: "800px", width: "400px", border:"1px solid #80808045" }}>
-          <LoginUser/>
+      <div style={{ position:"relative", height: "798px", width: "400px", border:"1px solid #80808045" }}>
+          <LoginUser lun={login_user_name}/>
           <MessageSeparator>Chat History</MessageSeparator>
           <ChatHistoryList listData={chat_history} deleteData={setChatHistory}/>
       </div>

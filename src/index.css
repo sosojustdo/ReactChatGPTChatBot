@@ -70,3 +70,8 @@ button:focus-visible {
     background-color: #c6e3fa;
   }
 }
+
+div::-webkit-scrollbar {
+  width: 5px; /* 设置滚动条的宽度 */
+  background-color: #c6e3fa; /* 设置滚动条的背景颜色 */
+}

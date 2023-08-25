@@ -1,32 +1,23 @@
-import { useState, useEffect } from "react";
 
 import {joeModel} from "./Users.jsx"
 
 import {pubsub_topic_reload_new_chat, initMessages} from "../Constant.jsx";
-import ChatGPTWarp from "../api/ChatGPTWarp.jsx";
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { Avatar, ConversationHeader, Button } from '@chatscope/chat-ui-kit-react';
 import PubSub from 'pubsub-js';
 
-const chatGptWarp = new ChatGPTWarp();
-
 const newChat = async () => {
   PubSub.publish(pubsub_topic_reload_new_chat, [initMessages]);
 }
 
-const LoginUser = () => {
-  const [login_user_name, setLoginUserName] = useState('')
-  useEffect(() => {chatGptWarp.queryLoginUser().then((lun) => {
-    setLoginUserName('admin')
-  })}, [])
-
+const LoginUser = ({ lun }) => {
   return (
     <ConversationHeader>
-        <Avatar src={joeModel.avatar} name={login_user_name} status="available" />
+        <Avatar src={joeModel.avatar} name={lun} status="available" />
         <ConversationHeader.Content>
-          <div>
-            <span style={{ textAlign: "left"}} id="login_user">{login_user_name}</span>
+          <div style={{ display:"flex", flexDirection:"row", justifyContent:"space-evenly", alignItems:"center" }}>
+            <span style={{ textAlign: "left"}} id="login_user">{lun}</span>
             <Button onClick={newChat} border>New Chat</Button>
           </div>
         </ConversationHeader.Content>

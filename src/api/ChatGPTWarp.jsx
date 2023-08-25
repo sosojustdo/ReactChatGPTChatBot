@@ -6,13 +6,22 @@ import PubSub from 'pubsub-js';
 
 class ChatGPTWarp extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.queryLoginUser().then((lun) => {
+            console.log('lun', lun)
+            this.state = {'lun':lun}
+        });
+    }
+
     //请求chatgpt成功后更新对话记录-流式
     requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputStream) => {
         const response = await fetch(apiUrl + '/chat_completion_stream/',
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "lun": this.state.lun
             },
             body: JSON.stringify(apiRequestBody)
         });
@@ -46,7 +55,8 @@ class ChatGPTWarp extends React.Component {
                 {
                     method: "POST",
                     headers: {
-                    "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "lun": this.state.lun
                     },
                     body: JSON.stringify(updateChatBody)
                 }
@@ -84,7 +94,8 @@ class ChatGPTWarp extends React.Component {
         {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "lun": this.state.lun
             },
             body: JSON.stringify(apiRequestBody)
         }).then((data) => {
@@ -118,7 +129,8 @@ class ChatGPTWarp extends React.Component {
                 {
                     method: "POST",
                     headers: {
-                    "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "lun": this.state.lun
                     },
                     body: JSON.stringify(updateChatBody)
                 }
@@ -146,7 +158,8 @@ class ChatGPTWarp extends React.Component {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "lun": this.state.lun
           },
           body: JSON.stringify(createChatBody)
         }
@@ -168,7 +181,8 @@ class ChatGPTWarp extends React.Component {
         {
             method: "POST",
             headers: {
-            "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "lun": this.state.lun
             },
             body: JSON.stringify({"chat_record_id":chat_record_id})
         }
@@ -192,7 +206,8 @@ class ChatGPTWarp extends React.Component {
         {
             method: "POST",
             headers: {
-            "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "lun": this.state.lun
             },
             body: JSON.stringify({"chat_record_id":chat_record_id})
         }
@@ -224,7 +239,8 @@ class ChatGPTWarp extends React.Component {
             {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "lun": this.state.lun
                 },
                 body: JSON.stringify({"login_user_name":login_user_name})
             }
@@ -260,9 +276,8 @@ class ChatGPTWarp extends React.Component {
                 throw new Error('queryLoginUser server error!')
             }
         });
-        return login_user_name
+        return login_user_name != ''?login_user_name:'anonymous'
     }
-
 }
 
 export default ChatGPTWarp;
