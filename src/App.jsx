@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react'
+import { React, useState, useEffect, useRef } from 'react'
 
 import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
 import './App.css'
@@ -18,6 +18,9 @@ const codeRegex = /```(\w+)\n([^\`]*?)\n```/gm;
 const codeBlockRegex = /```(\w+)\n([\s\S]+?)\n```/;
 
 function App() {
+
+  const isStreamingRef = useRef(false);
+
   //MessageList
   const [messages, setMessages] = useState([
     {
@@ -29,10 +32,9 @@ function App() {
 
   //MessageInput
   const [isTyping, setIsTyping] = useState(false);
-  const [inputStream, setInputStream] = useState(false)
 
   //reload app useState data
-  useEffect(() => {outerReloadAppMessagesData(setMessages)}, [])
+  useEffect(() => {outerReloadAppMessagesData(setMessages)})
 
   const handleSend = async (message) => {
     //replace html or css for copy content
@@ -83,7 +85,7 @@ function App() {
         ...apiMessages
       ]
     }
-    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputStream)
+    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, isStreamingRef)
   }
 
   async function processMessageToChatGPT(chatMessages) {
@@ -105,6 +107,23 @@ function App() {
     chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping)
   }
 
+  const outerReloadAppMessagesData = async(setMessages) => {
+    PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
+      if(!isStreamingRef.current){
+        setMessages(data)
+        document.getElementById("app_id").setAttribute("chat_record_id", 0)
+      }
+    });
+
+    PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
+      //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
+      if(!isStreamingRef.current){
+        setMessages(data.selectChatMessages)
+        document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
+      }
+    });
+  }
+
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
       <div style={{ position:"relative", height: "800px", width: "1024px" }}>
@@ -112,7 +131,7 @@ function App() {
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
               {messages.map((message, i) => {
-                if(i == messages.length-1 && inputStream){
+                if(i == messages.length-1 && isStreamingRef.current){
                   return (
                     <SyntaxHighlighter key={i} as="Message2" language="auto" style={vs2015} customStyle={{ overflowX:"auto", borderRadius:"0.7em 0.7em 0.7em 0.7em", padding:"1.9em 0.9em", fontSize:".91em" }} wrapLongLines="true">
                       {message.message}
@@ -150,19 +169,6 @@ function App() {
       </div>
     </div>
   )
-}
-
-const outerReloadAppMessagesData = async(setMessages) => {
-  PubSub.subscribe(pubsub_topic_reload_new_chat, (msg, data) => {
-    setMessages(data)
-    document.getElementById("app_id").setAttribute("chat_record_id", 0)
-  });
-
-  PubSub.subscribe(pubsub_topic_reload_select_chat, (msg, data) => {
-    //data format:{'selectChatMessages':selectChatMessages, 'chat_record_id':chat_record_id}
-    setMessages(data.selectChatMessages)
-    document.getElementById("app_id").setAttribute("chat_record_id", data.chat_record_id)
-  });
 }
 
 export default App

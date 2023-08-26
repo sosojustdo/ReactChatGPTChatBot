@@ -9,13 +9,12 @@ class ChatGPTWarp extends React.Component {
     constructor(props) {
         super(props);
         this.queryLoginUser().then((lun) => {
-            console.log('lun', lun)
             this.state = {'lun':lun}
         });
     }
 
     //请求chatgpt成功后更新对话记录-流式
-    requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, setInputStream) => {
+    requestChatGPTAndUpdateChatRecordStream = async(chatMessages, apiRequestBody, setMessages, setIsTyping, isStreamingRef) => {
         const response = await fetch(apiUrl + '/chat_completion_stream/',
         {
             method: "POST",
@@ -70,7 +69,7 @@ class ChatGPTWarp extends React.Component {
                     }
                 });
                 setIsTyping(false);
-                setInputStream(false)
+                isStreamingRef.current = false;
                 break;
             }
 
@@ -83,7 +82,7 @@ class ChatGPTWarp extends React.Component {
                 sender: "ChatGPT"
             }]
             setMessages(loop_new_chat_messages)
-            setInputStream(true)
+            isStreamingRef.current = true;
         }
     }
 
