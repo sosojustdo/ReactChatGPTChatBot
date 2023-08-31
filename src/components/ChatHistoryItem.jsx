@@ -19,7 +19,7 @@ const ChatHistoryItem = ({ chat_record_num, chat_record_id, chat_content, delete
         <div>
             <div style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between" }}>
                 <span>({chat_record_num})</span>
-                <p style={{ textAlign: "left", width: "100%" }} onClick={selectChat}>{chat_content}</p>
+                <p style={{ textAlign: "left", width: "100%", maxWidth:"345px", wordBreak:"break-word" }} onClick={selectChat}>{chat_content}</p>
                 <img style={{ minWidth: "25px", minHeight: "25px", width: "25px", height: "25px" }} src={deleteSvg} onClick={deleteChat}></img>
             </div>
             <MessageSeparator />
