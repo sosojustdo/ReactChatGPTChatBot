@@ -24,7 +24,7 @@ const History = () => {
 
   return (
     <div className="App">
-      <div style={{ position:"relative", height: "798px", width: "400px", border:"1px solid #80808045" }}>
+      <div style={{ position:"relative", height: "800px", width: "100%", border:"1px solid #c6e3fa"}}>
           <LoginUser lun={login_user_name}/>
           <MessageSeparator>Chat History</MessageSeparator>
           <ChatHistoryList listData={chat_history} deleteData={setChatHistory}/>

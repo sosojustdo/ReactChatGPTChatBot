@@ -18,7 +18,7 @@ const LoginUser = ({ lun }) => {
         <ConversationHeader.Content>
           <div style={{ display:"flex", flexDirection:"row", justifyContent:"space-evenly", alignItems:"center" }}>
             <span style={{ textAlign: "left"}} id="login_user">{lun}</span>
-            <Button onClick={newChat} border>New Chat</Button>
+            <Button onClick={newChat}>New Chat</Button>
           </div>
         </ConversationHeader.Content>
     </ConversationHeader>
