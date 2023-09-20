@@ -62,13 +62,7 @@ button {
 }
 
 div::-webkit-scrollbar {
-  width: 5px;
-  background-color: #c6e3fa;
-}
-
-#history, #root {
-  width: 50%;
-  margin: 0 auto;
+  width: 0.5px;
 }
 
 @media (min-width: 768px) {

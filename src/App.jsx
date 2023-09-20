@@ -126,7 +126,7 @@ function App() {
 
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
-      <div style={{ position:"relative", height: "800px", width: "100%", border:"1px solid #c6e3fa" }}>
+      <div style={{ position:"relative", height: "800px", width: "100%" }}>
         <MainContainer>
           <ChatContainer>
             <MessageList loadingMorePosition="bottom" typingIndicator={isTyping ? <TypingIndicator content="Chat Is Typing..." /> : null}>
