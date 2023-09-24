@@ -65,7 +65,7 @@ div::-webkit-scrollbar {
   width: 0.5px;
 }
 
-@media (min-width: 768px) {
+@media screen and (min-width: 768px) {
   body {
     display: flex;
     justify-content: center;
@@ -74,19 +74,19 @@ div::-webkit-scrollbar {
   }
 
   #main {
-    width: 80%;
+    width: 90%;
   }
 
   #history {
-    width: 30%;
+    width: 40%;
   }
 
   #root {
-    width: 70%;
+    width: 60%;
   }
 }
 
-@media (max-width: 767px) {
+@media screen and (max-width: 767px) {
   #history,
   #root {
     width: 100%;

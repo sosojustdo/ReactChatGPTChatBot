@@ -13,15 +13,13 @@ const newChat = async () => {
 
 const LoginUser = ({ lun }) => {
   return (
-    <ConversationHeader>
-        <Avatar src={joeModel.avatar} name={lun} status="available" />
-        <ConversationHeader.Content>
-          <div style={{ display:"flex", flexDirection:"row", justifyContent:"space-evenly", alignItems:"center" }}>
-            <span style={{ textAlign: "left"}} id="login_user">{lun}</span>
-            <Button onClick={newChat} style={{ backgroundColor:"#c6e3fa" }}>New Chat</Button>
-          </div>
-        </ConversationHeader.Content>
-    </ConversationHeader>
+      <ConversationHeader.Content>
+        <div style={{ display:"flex", flexDirection:"row", justifyContent:"space-evenly", alignItems:"center" }}>
+          <Avatar style={{ marginTop:"5px" }} src={joeModel.avatar} name={lun} status="available" />
+          <span style={{ textAlign: "left"}} id="login_user">{lun}</span>
+          <Button onClick={newChat} style={{ backgroundColor:"#c6e3fa" }}>New Chat</Button>
+        </div>
+      </ConversationHeader.Content>
   );
 };
 

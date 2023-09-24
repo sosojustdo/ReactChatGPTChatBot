@@ -4,6 +4,7 @@ import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./C
 import './App.css'
 import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
 import MessageCode from './components/MessageCode.jsx'
+import MessageTable from './components/MessageTable.jsx';
 
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
@@ -124,6 +125,10 @@ function App() {
     });
   }
 
+  const includeTable = (message) => {
+    return (message.indexOf(("|:-")) != -1 && message.indexOf(("-:|")) != -1) || (message.indexOf(("|-")) != -1 && message.indexOf(("-|")) != -1)
+  }
+
   return (
     <div className="App" id='app_id' chat_record_id = '0'>
       <div style={{ position:"relative", height: "800px", width: "100%" }}>
@@ -139,6 +144,7 @@ function App() {
                   );
                 }else{
                   const include_code = message.message.indexOf(("```")) != -1
+                  const include_table = includeTable(message.message)
                   if(include_code){
                     const lang_array = []
                     const code_array = []
@@ -157,6 +163,8 @@ function App() {
                     const texts = message.message.split(codeRegex).filter(t => t.trim() && lang_array.indexOf(t) == -1);
                     //remove warn:https://chatscope.io/storybook/react/?path=/story/documentation-recipes--page#changing-component-type-to-allow-place-it-in-container-slot
                     return <MessageCode as="Message2" key={i} texts={texts} code_array={code_array} lang_array={lang_array} />
+                  }else if(include_table){
+                    return <MessageTable as="Message2" key={i} texts={message.message.split('\n\n')}/>
                   }else{
                     return <Message key={i} model={message} />
                   }
