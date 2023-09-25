@@ -1,4 +1,5 @@
 import { React } from 'react'
+import '../App.css'
 
 const tableRegex  = /\|(.|\n)+?\|\n/g;
 
@@ -9,7 +10,7 @@ const MessageTable = ({texts}) => {
             const is_table = tableRegex.test(text);
             if(is_table){
               const rows = text.split('\n')
-              const table_columns = ['对比项'].concat(rows[0].split('|').filter(t => t.trim() && t != '' && t != '\n'))
+              const table_columns = rows[0].split('|').filter(t => t.trim() && t != '' && t != '\n')
               const table_data = rows.slice(2)
               return <InnerTable table_columns={table_columns} table_data={table_data}></InnerTable>
             }else{
@@ -22,7 +23,7 @@ const MessageTable = ({texts}) => {
 
 const InnerTable = ({table_columns, table_data}) => {
   return (
-    <table style={{ borderCollapse:"collapse" }}>
+    <table>
       <thead>
         <tr>
           {table_columns.map((column, c) => (
@@ -33,7 +34,7 @@ const InnerTable = ({table_columns, table_data}) => {
       <tbody>
         {table_data.map((row, i) => (
           <tr key={i}>
-            {row.split('|').map((td, j) => (
+            {row.split('|').filter(item => item != '').map((td, j) => (
               <td key={j}>{td}</td>
             ))}
           </tr>
