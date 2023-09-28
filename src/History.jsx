@@ -1,31 +1,43 @@
 import { useState, useEffect } from "react";
 
-import './History.css'
-import LoginUser from './components/LoginUser';
+import {joeModel} from "./components/Users.jsx";
+import './History.css';
 import ChatHistoryList from './components/ChatHistoryList';
-import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
+import {queryLoginUser,queryUserChatRecord} from "./api/ChatGptProxy.jsx";
+import {pubsub_topic_reload_new_chat, initMessages} from "./Constant.jsx";
 
-import { MessageSeparator } from '@chatscope/chat-ui-kit-react';
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { MessageSeparator, Avatar, ConversationHeader, Button } from '@chatscope/chat-ui-kit-react';
 
-const chatGptWarp = new ChatGPTWarp();
+import PubSub from 'pubsub-js';
+
+const newChat = async () => {
+  PubSub.publish(pubsub_topic_reload_new_chat, [initMessages]);
+}
 
 const History = () => {
   const [chat_history, setChatHistory] = useState([])
-  const [login_user_name, setLoginUserName] = useState('')
+  const [lun, setLun] = useState()
 
   useEffect(() => {
-    chatGptWarp.queryLoginUser().then((lun) => {
-      setLoginUserName(lun)
-      chatGptWarp.queryUserChatRecord(lun).then((chat_history_array) => {
-        setChatHistory(chat_history_array)
-      })
+    const loginUserName = queryLoginUser()
+    setLun(loginUserName)
+    sessionStorage.setItem("lun", loginUserName)
+    queryUserChatRecord(loginUserName).then((chat_history_array) => {
+      setChatHistory(chat_history_array)
     })
   }, [])
 
   return (
     <div className="App">
       <div style={{ position:"relative", height: "798px", padding:"0 10px", border:"1px solid #d1dbe3"}}>
-          <LoginUser lun={login_user_name}/>
+          <ConversationHeader.Content>
+            <div style={{ display:"flex", flexDirection:"row", justifyContent:"space-evenly", alignItems:"center" }}>
+              <Avatar style={{ marginTop:"5px" }} src={joeModel.avatar} name={lun} status="available" />
+              <span style={{ textAlign: "left"}} id="login_user">{lun}</span>
+              <Button onClick={newChat} style={{ backgroundColor:"#c6e3fa" }}>New Chat</Button>
+            </div>
+          </ConversationHeader.Content>
           <MessageSeparator>Chat History</MessageSeparator>
           <ChatHistoryList listData={chat_history} deleteData={setChatHistory}/>
       </div>

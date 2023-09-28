@@ -2,7 +2,7 @@ import { React, useState, useEffect, useRef } from 'react'
 
 import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
 import './App.css'
-import ChatGPTWarp from "./api/ChatGPTWarp.jsx";
+import {addChatRecord, requestChatGPTAndUpdateChatRecord, requestChatGPTAndUpdateChatRecordStream} from "./api/ChatGptProxy.jsx";
 import MessageCode from './components/MessageCode.jsx'
 import MessageTable from './components/MessageTable.jsx';
 
@@ -12,8 +12,6 @@ import PubSub from 'pubsub-js';
 
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-
-const chatGptWarp = new ChatGPTWarp();
 
 const codeRegex = /```(\w+)\n([^\`]*?)\n```/gm;
 const codeBlockRegex = /```(\w+)\n([\s\S]+?)\n```/;
@@ -63,7 +61,7 @@ function App() {
           }
         })
       }
-      chatGptWarp.addChatRecord(createChatBody)
+      addChatRecord(createChatBody)
     }
 
     //await processMessageToChatGPT(newMessages);
@@ -86,7 +84,7 @@ function App() {
         ...apiMessages
       ]
     }
-    chatGptWarp.requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, isStreamingRef)
+    requestChatGPTAndUpdateChatRecordStream(chatMessages, apiRequestBody, setMessages, setIsTyping, isStreamingRef)
   }
 
   async function processMessageToChatGPT(chatMessages) {
@@ -105,7 +103,7 @@ function App() {
         ...apiMessages
       ]
     }
-    chatGptWarp.requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping)
+    requestChatGPTAndUpdateChatRecord(chatMessages, apiRequestBody, setMessages, setIsTyping)
   }
 
   const outerReloadAppMessagesData = async(setMessages) => {
@@ -127,6 +125,16 @@ function App() {
 
   const includeTable = (message) => {
     return (message.indexOf(("|:-")) != -1 && message.indexOf(("-:|")) != -1) || (message.indexOf(("|-")) != -1 && message.indexOf(("-|")) != -1)
+  }
+
+  const onAttachClick = async() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = e => {
+      console.log(e.target.files[0])
+    }
+    input.click();
+    //input.remove();
   }
 
   return (
@@ -171,7 +179,7 @@ function App() {
                 }
               })}
             </MessageList>
-            <MessageInput attachButton={false} placeholder="Type Message Here..." onSend={handleSend}/>
+            <MessageInput attachButton={true} onAttachClick={onAttachClick} placeholder="Type Message Here..." onSend={handleSend}/>
           </ChatContainer>
         </MainContainer>
       </div>
