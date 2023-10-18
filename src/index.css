@@ -78,11 +78,11 @@ div::-webkit-scrollbar {
   }
 
   #history {
-    width: 40%;
+    width: 30%;
   }
 
   #root {
-    width: 60%;
+    width: 70%;
   }
 }
 

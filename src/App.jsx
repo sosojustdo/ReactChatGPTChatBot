@@ -130,6 +130,8 @@ function App() {
   const onAttachClick = async() => {
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = '.pdf,.doc,.docx,.rtf,.epub,.odt,.odp,.pptx,.txt,.py,.ipynb,.js,.jsx,.html,.css,.java,.cs,.php,.c,.cpp,.cxx,.h,.hpp,.rs,.R,.Rmd,.swift,.go,.rb,.kt,.kts,.ts,.tsx,.m,.scala,.rs,.dart,.lua,.pl,.pm,.t,.sh,.bash,.zsh,.csv,.log,.ini,.config,.json,.yaml,.yml,.toml,.lua,.sql,.bat,.md,.coffee,.tex,.latex'
+    input.multiple = ''
     input.onchange = e => {
       console.log(e.target.files[0])
     }
