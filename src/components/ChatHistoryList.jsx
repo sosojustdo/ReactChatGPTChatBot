@@ -6,7 +6,7 @@ const ChatHistoryList = ({ listData, deleteData }) => {
             {listData.map((item, i) => {
                 return(
                     <div key={i}>
-                        <ChatHistoryItem chat_record_num={item.chat_record_num} chat_record_id={item.chat_record_id} chat_content={item.chat_content} deleteData={deleteData} />
+                        <ChatHistoryItem chat_record_num={item.chat_record_num} chat_record_id={item.chat_record_id} chat_content={item.chat_content.length > 200?item.chat_content.slice(0, 200) + '...':item.chat_content} deleteData={deleteData} />
                     </div>
                 );
             })}

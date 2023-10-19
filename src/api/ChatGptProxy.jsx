@@ -259,9 +259,9 @@ export const queryLoginUser = (setLun) => {
     .then(data => data.json())
     .then(data => {
         if (data.code == 0) {
-            console.log('data.data', data.data)
-            setLun(data.data)
-            sessionStorage.setItem("lun", data.data)
+            const lun = data.data != ''?data.data:'anonymous'
+            setLun(lun)
+            sessionStorage.setItem("lun", lun)
         }else{
             throw new Error('queryLoginUser server error!')
         }
