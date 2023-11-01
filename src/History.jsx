@@ -20,9 +20,10 @@ const History = () => {
   const [lun, setLun] = useState()
 
   useEffect(() => {
-    queryLoginUser(setLun)
-    queryUserChatRecord().then((chat_history_array) => {
-      setChatHistory(chat_history_array)
+    queryLoginUser(setLun).then((lun) => {
+      queryUserChatRecord(lun).then((chat_history_array) => {
+        setChatHistory(chat_history_array)
+      })
     })
   }, [])
 

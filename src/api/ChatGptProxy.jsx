@@ -222,16 +222,16 @@ export const selectChat = async(chat_record_id) => {
 }
 
 //根据当前登录用户获取历史对话记录
-export const queryUserChatRecord = async() => {
+export const queryUserChatRecord = async(lun) => {
     let chat_history_array = []
     await fetch(apiUrl + '/query_chat_record_user/',
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "lun": sessionStorage.getItem("lun")
+                "lun": lun
             },
-            body: JSON.stringify({"login_user_name":sessionStorage.getItem("lun")})
+            body: JSON.stringify({"login_user_name":lun})
         }
     ).then((data) => {
         return data.json();
@@ -254,16 +254,18 @@ export const queryUserChatRecord = async() => {
 }
 
 //同步查询当前登录人信息
-export const queryLoginUser = (setLun) => {
-    fetch(apiUrl + '/current_user/')
+export const queryLoginUser = async(setLun) => {
+    await fetch(apiUrl + '/current_user/')
     .then(data => data.json())
     .then(data => {
         if (data.code == 0) {
             const lun = data.data != ''?data.data:'anonymous'
             setLun(lun)
             sessionStorage.setItem("lun", lun)
+            return lun
         }else{
             throw new Error('queryLoginUser server error!')
         }
     });
+    return 'anonymous'
 }
