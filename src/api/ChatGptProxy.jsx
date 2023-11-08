@@ -255,17 +255,10 @@ export const queryUserChatRecord = async(lun) => {
 
 //同步查询当前登录人信息
 export const queryLoginUser = async(setLun) => {
-    await fetch(apiUrl + '/current_user/')
-    .then(data => data.json())
-    .then(data => {
-        if (data.code == 0) {
-            const lun = data.data != ''?data.data:'anonymous'
-            setLun(lun)
-            sessionStorage.setItem("lun", lun)
-            return lun
-        }else{
-            throw new Error('queryLoginUser server error!')
-        }
-    });
-    return 'anonymous'
+    const response = await fetch(apiUrl + '/current_user/')
+    const data = await response.json();
+    const lun = data.data != ''?data.data:'anonymous'
+    setLun(lun)
+    sessionStorage.setItem("lun", lun)
+    return lun
 }

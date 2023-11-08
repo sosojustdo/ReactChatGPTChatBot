@@ -20,11 +20,16 @@ const History = () => {
   const [lun, setLun] = useState()
 
   useEffect(() => {
-    queryLoginUser(setLun).then((lun) => {
-      queryUserChatRecord(lun).then((chat_history_array) => {
-        setChatHistory(chat_history_array)
-      })
-    })
+    const fetchData = async () => {
+      try {
+        const login_user_name = await queryLoginUser(setLun)
+        const records = await queryUserChatRecord(login_user_name);
+        setChatHistory(records)
+      } catch (error) {
+        console.error('An error occurred:', error);
+      }
+    };
+    fetchData();
   }, [])
 
   return (
