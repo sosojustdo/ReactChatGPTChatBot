@@ -38,7 +38,7 @@ function App() {
   const handleSend = async (message) => {
     //replace html or css for copy content
     //bugfix:https://github.com/chatscope/chat-ui-kit-react/issues/22
-    message = message.replace(/<[^>]*>|\s+/g, '');
+    message = message.replace(/<[^>]+>/g, '');
     const newMessage = {
       message,
       direction: 'outgoing',
@@ -181,7 +181,7 @@ function App() {
                 }
               })}
             </MessageList>
-            <MessageInput attachButton={true} onAttachClick={onAttachClick} placeholder="Type Message Here..." onSend={handleSend}/>
+            <MessageInput attachButton={true} onAttachClick={onAttachClick} placeholder="Type Message Here..." onSend={handleSend} />
           </ChatContainer>
         </MainContainer>
       </div>
