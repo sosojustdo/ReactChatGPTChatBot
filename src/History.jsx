@@ -30,7 +30,7 @@ const History = () => {
       }
     };
     fetchData();
-  }, [])
+  }, [chat_history])
 
   return (
     <div className="App">

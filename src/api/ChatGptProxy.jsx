@@ -140,7 +140,6 @@ export const requestChatGPTAndUpdateChatRecord = async(chatMessages, apiRequestB
     });
 }
 
-
 //保存对话
 export const addChatRecord = async(createChatBody) => {
     await fetch(apiUrl + '/add_chat_record/',
