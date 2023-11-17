@@ -1,6 +1,6 @@
 import { React, useState, useEffect, useRef } from 'react'
 
-import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat} from "./Constant.jsx";
+import {pubsub_topic_reload_new_chat, pubsub_topic_reload_select_chat, pubsub_topic_reload_history_chat} from "./Constant.jsx";
 import './App.css'
 import {addChatRecord, requestChatGPTAndUpdateChatRecord, requestChatGPTAndUpdateChatRecordStream} from "./api/ChatGptProxy.jsx";
 import MessageCode from './components/MessageCode.jsx'
@@ -66,6 +66,7 @@ function App() {
 
     //await processMessageToChatGPT(newMessages);
     await processMessageToChatGPTStream(newMessages);
+    PubSub.publish(pubsub_topic_reload_history_chat);
   };
 
   async function processMessageToChatGPTStream(chatMessages) {
