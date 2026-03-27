@@ -130,3 +130,8 @@ dmypy.json
 
 #node_modules
 node_modules
+.agent
+.claude
+.vscode
+
+.env*
